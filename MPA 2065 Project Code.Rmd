@@ -1,0 +1,145 @@
+---
+title: "MPA 2065 Project"
+author: "Jing Duan"
+date: "12/7/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Library
+```{r}
+library(dplyr)
+library(stringi)
+library(ggplot2)
+library(tidyr)
+library(moments)
+#library(plotly)
+library(GGally)
+library(car)
+library(faraway)
+```
+
+##Import Data
+```{r}
+df = read.csv("/Users/jing/Desktop/MPA 2065/Project/Data/MPA 2065 Data.csv")
+head(df)
+```
+
+##Formating Data
+```{r}
+df$region_f = as.factor(df$region)
+head(df)
+```
+
+```{r}
+skewness(df$unemployment)
+skewness(df$income)
+skewness(df$stay)
+skewness(df$trips)
+
+
+```
+
+##Checking Distribution of Variables
+```{r}
+summary(df)
+
+par(mfrow=c(2,4))
+hist(df$unemployment)
+hist(df$income)
+hist(df$trips)
+hist(df$stay)
+boxplot(df$unemployment)
+boxplot(df$income)
+boxplot(df$trips)
+boxplot(df$stay)
+
+table(df$region_f)
+```
+
+##Building MLR
+```{r}
+fm = lm(unemployment ~ income + stay + trips + region_f, df)
+summary(fm)
+```
+
+```{r}
+par(mfrow=c(2,2))
+plot(fm6)
+```
+
+##Adding Interaction Terms
+####With all interactions
+```{r}
+fm2 = lm(unemployment ~ income * trips * stay * region_f, df)
+summary(fm2)
+```
+####With only interactions between income and stay
+
+```{r}
+rm = lm(unemployment ~ trips + region_f, df)
+summary(rm)
+```
+
+```{r}
+fm3 = lm(unemployment ~ income * stay + trips + region_f, df)
+summary(fm3)
+#anova(fm, fm3)
+#anova(rm, fm3)
+fm4 = lm(unemployment ~ income * trips + stay + region_f, df)
+summary(fm4)
+fm5 = lm(unemployment ~ income * region_f + trips + stay, df)
+summary(fm5)
+fm6 = lm(unemployment ~ income + trips + stay * region_f, df)
+summary(fm6)
+```
+
+```{r}
+#anova(fm, fm6)
+par(mfrow=c(2,2))
+plot(fm6)
+```
+
+
+####With some interactions
+```{r}
+fm4 = lm(unemployment ~ income * stay 
+         + income * region_f 
+         + trips
+         
+#         + income * trips 
+#         + stay * trips
+#        + stay * region_f
+#         + trips * region_f
+         , df)
+summary(fm4) 
+anova(fm3, fm4)
+```
+
+
+
+##Checking Pair-Wise Correlations Among Independent Variables
+```{r}
+ggpairs(df[3:5])
+```
+
+
+```{r}
+plot(df$trips, df$stay)
+
+```
+
+
+```{r}
+df1 = df[3:5]
+vif(df1)
+
+```
+
+
+
+
+
